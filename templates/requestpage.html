@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block anonympage %}active{% endblock anonympage %}
+{% block content %}
+ <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<!--<link rel ="stylesheet" href="{% static 'css/settings.css' %}">-->
+<link rel ="stylesheet" href="{% static 'css/request.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+{% if user.is_authenticated %}
+<br><br><br>
+<center><p style="font-size: 30px; color:#2143b6; margin-top: 5%;">
+    {{user}}, your follow requests
+    {% for r in fr %}
+    </p>
+  </center>
+ <center>   
+    
+    <div class="card border-primary mb-3 w-50 h-100 bg-transparent " style="margin-left: 2%;">
+
+  <div class="card-body text-white">
+     <h3>{{r.from_user}}</h3>
+
+
+
+
+    <form action="/accept" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="user" value="{{r.from_user}}" readonly>
+    <input type="hidden" name="follower" value="{{user.username}}" readonly>
+    
+    
+    <div class="follow-button" style="margin-left: 45%;">
+ 
+      <button  id = "btnedit" type="submit" class="btn btn-primary" style="margin-right: 40%;" value = "accept" name="value" onclick ="window.location.href=''"><i class="fas fa-check-circle"></i></button>
+       <button  id = "btnedit" type="submit" class="btn btn-primary" value = "decline" name="value" onclick ="window.location.href=''"><i class="fas fa-times-circle"></i></button>
+   
+    </div>
+</div></div>
+  </form>
+  
+    
+    {% endfor %}
+   
+    {% endif %}
+
+
+
+<script src="https://kit.fontawesome.com/756186333c.js" crossorigin="anonymous"></script>
+
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
