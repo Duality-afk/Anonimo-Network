@@ -201,7 +201,9 @@ html{
        width: 90%;
      }
      .col{
-       padding: 0.5rem;
+       padding: 1.8rem;
+       margin: auto;
+       margin-left: -3rem;
      }
      .card{
        width: 80% !important;
