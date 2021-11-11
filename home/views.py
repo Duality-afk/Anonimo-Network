@@ -93,6 +93,8 @@ def signup(request):
             user = User.objects.create_user(username= username, password=password, email=email)
             user.save()
             print("User entered into the database successfully!")
+            args = {'user': request.user}
+            return render(request, 'signup.html',args)
         except IntegrityError:
 
             flag = True
@@ -100,8 +102,8 @@ def signup(request):
          
         #Account creation message
         
-        args = {'user': request.user,'flag':flag}
-        return render(request, 'signup.html',args)
+            args = {'user': request.user,'flag':flag}
+            return render(request, 'signup.html',args)
     else:
         return render(request, 'signup.html')
 
