@@ -26,7 +26,7 @@ urlpatterns = [
     path('', include('home.urls')),
     path('anonym', include('blogapp.urls')),
     path('chat', include('chat.urls')),
-    url(r'^media/(?P<path>.*)$', serve,{'document_root':       settings.MEDIA_ROOT}), 
+    url(r'^images/(?P<path>.*)$', serve,{'document_root':       settings.MEDIA_ROOT}), 
     url(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}), 
 ]
 
