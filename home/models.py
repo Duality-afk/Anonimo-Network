@@ -37,6 +37,7 @@ class editProfile(models.Model):
     hobbies = models.CharField(max_length=155)
     image = models.ImageField(upload_to=filepath, null=True, blank = True)
     followers = models.ManyToManyField(User, blank=True, related_name="followers") 
+    key = models.CharField(max_length=150)
 
 
 class FollowersCount(models.Model):

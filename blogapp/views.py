@@ -1,23 +1,38 @@
 from blogapp.models import Badges
-from home.models import editProfile,FriendRequest
+from home.models import editProfile,FriendRequest, FollowersCount
 from django.shortcuts import render
 from blogapp.models import Post,Like
 from django.shortcuts import redirect
-from blogapp.models import BlogComment
+from blogapp.models import BlogComment, Report
 from blogapp.templatetags import extras
 from django.contrib.auth.decorators import login_required
 from home.models import Bank
+from django.contrib.auth.models import User,auth
+import random
 # Create your views here.
+
+
+
 def anonymhome(request):
+ 
     friend_count = len(FriendRequest.objects.filter(to_user = request.user))
+    allfollowers = FollowersCount.objects.all().filter(user = request.user)
     allPosts = Post.objects.all()
+    friendlist = []
+    for follower in allfollowers:
+        Friend = User.objects.get(username = follower.follower)
+        friendlist.append(Friend)
+
+    
+    
+
     allProfiles = editProfile.objects.all()
     allBadges = Badges.objects.all()
     if request.user.is_authenticated:
         acc_bal = Bank.objects.get(profile_user=request.user)
         account_bal = acc_bal.account_bal
 
-        context = {'allPosts': allPosts, 'allProfiles':allProfiles, 'allBadges':allBadges,'friend_count':friend_count, 'account_bal':account_bal}
+        context = {'allPosts': allPosts, 'allProfiles':allProfiles, 'allBadges':allBadges,'friend_count':friend_count, 'account_bal':account_bal,'allfollowers':allfollowers,'friendlist':friendlist}
         return render(request, 'anonym.html', context)
     else:
         context = {'allPosts': allPosts, 'allProfiles':allProfiles, 'allBadges':allBadges,'friend_count':friend_count,}
@@ -52,7 +67,14 @@ def like_post(request):
 
 
 def blogPost(request,my_id):
+    allfollowers = FollowersCount.objects.all().filter(user = request.user)
+    friendlist = []
+    for follower in allfollowers:
+        Friend = User.objects.get(username = follower.follower)
+        friendlist.append(Friend)
+
     post = Post.objects.filter(sno=my_id).first()
+    allPosts = Post.objects.all()
     comments= BlogComment.objects.filter(post=post, parent=None)
     allProfiles = editProfile.objects.all()
     replies= BlogComment.objects.filter(post=post).exclude(parent=None)
@@ -62,7 +84,7 @@ def blogPost(request,my_id):
             replyDict[reply.parent.sno]=[reply]
         else:
             replyDict[reply.parent.sno].append(reply)
-    context={'post':post, 'comments': comments, 'allProfiles':allProfiles, 'user': request.user, 'replyDict': replyDict}
+    context={'post':post, 'comments': comments, 'allProfiles':allProfiles, 'user': request.user, 'replyDict': replyDict,'friendlist':friendlist,'allPosts':allPosts}
     return render(request, 'blogPost.html', context)
 
 def postComment(request):
@@ -146,4 +168,14 @@ def badges(request):
         
     return redirect('anonym')
             
-    
+
+def report(request):
+    if request.method=="POST":
+        title = request.POST.get('title')
+        content = request.POST.get('body')
+        value = request.POST.get('value')
+        ins = Report(post_title=title, post_content=content,reason=value)
+        ins.save()
+        return redirect('anonym')
+
+

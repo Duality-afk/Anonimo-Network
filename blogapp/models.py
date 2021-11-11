@@ -50,3 +50,9 @@ class Badges(models.Model):
     silver = models.IntegerField(default=0)
     bronze = models.IntegerField(default=0)
     platinum = models.IntegerField(default=0)
+
+
+class Report(models.Model):
+    post_title = models.CharField(max_length=1000)
+    post_content = models.CharField(max_length=5000)
+    reason = models.CharField(max_length=1000)

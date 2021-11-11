@@ -8,11 +8,12 @@
 {% if count == 0 %}
 <br><br><br><br><br>
 <center><div class="card mb-3" style="width: 60%;" >
-  <img src="{% static "img/setting.jpg" %}" class="card-img-top" style="height: 200px;">
+
+  <img src="{% static "img/Wall post-amico.png" %}" class="card-img-top">
   <div class="card-body">
     <h4 class="card-title">Hey {{request.user}} !</h4>
     <p class="card-text">Seems you have'nt completed your profile, just a few details and you're all set.</p>
-    <button id = "btnfollow" type="button" onclick ="window.location.href='/complete'" class="btn btn-primary">Complete</button>
+    <button id = "btncomplete" type="button" onclick ="window.location.href='/complete'" class="btn btn-primary">Complete</button>
   </div>
   
 </div>
@@ -43,17 +44,17 @@
           <p>Following</p>
         </div>
   </div>
-{% endfor %}
+
 <br>
 <div class="about-me">
     <div class="card-about text-center" style="background-color:transparent;">
         <div class="card-body">
             <h4 style="font-weight: 700; color: white;">About me</h4>
-         <p style="color: white;">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Earum consectetur suscipit quis rerum quaerat nisi consequuntur officia vitae eius cupiditate sint iusto nesciunt natus, iure error enim eligendi sunt odit.
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Earum consectetur suscipit quis rerum quaerat nisi consequuntur officia vitae eius cupiditate sint iusto nesciunt natus, iure error enim eligendi sunt odit.</p>  
+         <p style="color: white;">{{profile.bio}}</p>  
         </div>
       </div>
 </div>
+{% endfor %}
 <br>
 <center><h4 style="font-weight: 700; color: white;">My Posts</h4></center>
 <br>
@@ -94,9 +95,7 @@
         <button type="comment" id="icons"><i class="far fa-comment"> <a href="anonym/{{post.sno}} " style="text-decoration: none;font-family: 'Montserrat' !important; font-size:16px; color: white; font-weight:500;"> Comments</a></i></button>
     </div>
    
-    <div class="column">
-      <button type="report" id="icons"><i class="far fa-flag"></i></button><label id="labels">Report</label>
-  </div>
+   
     </div>
     
     </div>

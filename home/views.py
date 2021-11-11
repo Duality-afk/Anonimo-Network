@@ -7,9 +7,11 @@ from django.contrib.auth.models import User,auth
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
 from blogapp.models import Post, Like
 import os
 import razorpay
+import random
 
 # Create your views here.
 def home(request):
@@ -47,7 +49,11 @@ def post(request):
         author = request.user
         title = request.POST['content-title']
         body = request.POST['content-area']
-        ins = Post(author=author, title=title,body=body)
+        specialkey = editProfile.objects.get(profile_user= request.user)
+        key = specialkey.key
+
+        
+        ins = Post(author=author, title=title,body=body,slug=key)
         ins.save()
         print("Data has been successfully saved!")
         return render(request,'post.html',{'account_bal':account_bal})
@@ -78,18 +84,23 @@ def handlelogout(request):
 
 def signup(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        email = request.POST['email']
+        try:
+            username = request.POST['username']
+            password = request.POST['password']
+            email = request.POST['email']
+            
+        
+            user = User.objects.create_user(username= username, password=password, email=email)
+            user.save()
+            print("User entered into the database successfully!")
+        except IntegrityError:
 
-        user = User.objects.create_user(username= username, password=password, email=email)
-        
-        
-        user.save()
+            flag = True
+            print("already exisitng")
+         
         #Account creation message
-       
-        print("User entered into the database successfully!")
-        args = {'user': request.user}
+        
+        args = {'user': request.user,'flag':flag}
         return render(request, 'signup.html',args)
     else:
         return render(request, 'signup.html')
@@ -97,9 +108,9 @@ def signup(request):
 
 
 def settings(request):
+   
     allPosts = Post.objects.all()
     allProfiles = editProfile.objects.all()
-
     allPostU = Post.objects.all().filter(author = request.user)
     posts_counts = allPostU.count()
     allProfiles = editProfile.objects.all().filter(profile_user = request.user)
@@ -126,6 +137,7 @@ def settings(request):
         'allProfiles':allProfiles,
         'friend_count':friend_count,
         'account_bal':account_bal,
+        
        
         
     }
@@ -143,6 +155,7 @@ def complete(request):
         user_profile.hobbies = request.POST.get('Hobbies')
         if len(request.FILES)!=0:
             user_profile.image = request.FILES['image']
+        user_profile.key = random.randint(111,999)
         user_profile.save()
         return redirect('settings')
     return render(request,'complete.html')
@@ -164,53 +177,64 @@ def edit(request,id):
     context = {'user_profile':user_profile,'friend_count':friend_count, }
     return render(request, 'edit.html',context) 
 
-def userProfile(request,sno,id):
-        flag = False
-        if request.user.is_authenticated:
-            flag = True
-        current_user_posts = Post.objects.all().filter(sno=sno)
-        CPosts = Post.objects.get(sno=sno)
-        CUser = CPosts.author
-        print(CUser)
-        CAllposts = Post.objects.all().filter(author=CUser)
-        buttonclick = "true"
-        current_user = editProfile.objects.get(id= id)
-        posts_counts = current_user_posts.count()
-        current_user_pro = current_user.profile_user
-        current_user_pro_id = current_user_pro.id
-        logged_in_user = request.user.username
-        user_followers = len(FollowersCount.objects.filter(user=current_user_pro))
-        user_following = len(FollowersCount.objects.filter(follower= current_user_pro))
-        user_followers0 = FollowersCount.objects.filter(user = current_user_pro)
-        friend_count = len(FriendRequest.objects.filter(to_user = request.user))
-        print(user_followers0)
-        user_followers1= []
-        for i in user_followers0:
-            user_followers0 = i.follower
-            user_followers1.append(user_followers0)
-        if logged_in_user in user_followers1:
-            follow_button_value = 'unfollow'
-        else:
-            follow_button_value = 'follow'
-        context = {
-            'current_user': current_user,
-            'current_user_posts':current_user_posts,
-            'posts_counts':posts_counts, 
-            'current_user':current_user,
-            'current_user_pro':current_user_pro,
-            'user_followers': user_followers,
-            'user_following': user_following,
-            'follow_button_value' : follow_button_value,
-            'current_user_pro_id':current_user_pro_id,
-            'buttonclick':buttonclick,
-            'friend_count':friend_count,
-            'CAllposts':CAllposts,
-            'flag':flag,
+def userProfile(request,id):
+    flag = False
+    if request.user.is_authenticated:
+        flag = True
+    current_user = editProfile.objects.get(id= id)
+    current_user_pro = current_user.profile_user
+    current_user_posts = Post.objects.all().filter(author=current_user_pro)
+    current_user = editProfile.objects.get(id= id)
+    current_user_pro = current_user.profile_user
+    CAllposts = Post.objects.all().filter(author=current_user_pro)
+    buttonclick = "true"
+       
+    user_key = current_user.key
+    posts_counts = current_user_posts.count()
+       
+    current_user_pro_id = current_user_pro.id
+    logged_in_user = request.user.username
+    user_followers = len(FollowersCount.objects.filter(user=current_user_pro))
+    user_following = len(FollowersCount.objects.filter(follower= current_user_pro))
+    user_followers0 = FollowersCount.objects.filter(user = current_user_pro)
+    friend_count = len(FriendRequest.objects.filter(to_user = request.user))
+    print(user_followers0)
+    user_followers1= []
+    for i in user_followers0:
+        user_followers0 = i.follower
+        user_followers1.append(user_followers0)
+    if logged_in_user in user_followers1:
+        follow_button_value = 'unfollow'
+    else:
+        follow_button_value = 'follow'
+
+    allfollowers = FollowersCount.objects.all().filter(user = request.user)
+    friendlist = []
+    for follower in allfollowers:
+        Friend = User.objects.get(username = follower.follower)
+        friendlist.append(Friend)
+    context = {
+        'current_user': current_user,
+        'current_user_posts':current_user_posts,
+        'posts_counts':posts_counts, 
+        'current_user':current_user,
+        'current_user_pro':current_user_pro,
+        'user_followers': user_followers,
+        'user_following': user_following,
+        'follow_button_value' : follow_button_value,
+        'current_user_pro_id':current_user_pro_id,
+        'buttonclick':buttonclick,
+        'friend_count':friend_count,
+        'CAllposts':CAllposts,
+        'flag':flag,
+        'friendlist':friendlist,
+        'user_key':user_key,
             
-            }
+            
+        }
 
 
-        return render(request, 'userprofile.html', context )
+    return render(request, 'userprofile.html', context )
   
         
         
@@ -226,7 +250,9 @@ def followers_count(request):
             followers_cnt.save()
         elif value == 'unfriend':
             followercnt = FollowersCount.objects.get(follower = follower, user = user)
+            followercnt2 = FollowersCount.objects.get(follower=user,user = follower)
             followercnt.delete()
+            followercnt2.delete()
         else:
             followers_cnt = FriendRequest.objects.get(from_user=follower,to_user= user)
             followers_cnt.delete()
@@ -268,7 +294,9 @@ def accept_request(request):
         if value == 'accept':
             print("inside if")
             followers_cnt = FollowersCount.objects.create(follower=user, user= follower)
+            follower_cnt2 = FollowersCount.objects.create(follower=follower, user = user)
             followers_cnt.save()
+            follower_cnt2.save()
             requestcnt = FriendRequest.objects.get(from_user=user,to_user= follower)
             requestcnt.delete()
             print("Suceesfully saved!")
@@ -284,51 +312,22 @@ def unfriend(request):
         user = request.POST['user']
         follower = request.POST['follower']
         followercnt = FollowersCount.objects.get(follower = user, user = follower)
+        followercnt2 = FollowersCount.objects.get(follower=follower ,user=user)
+        followercnt2.delete()
         followercnt.delete()
+   
     return redirect('anonym')
 
 
-'''def demobuy(request):
-    userid = Bank.objects.get(profile_user = request.user)
-    user_id = userid.id
-    final = ""
-    total_trans = len(Transactions.objects.filter(profile_user=request.user))
+
+def chatlist(request):
+    allfollowers = FollowersCount.objects.all().filter(user = request.user)
+    allProfiles = editProfile.objects.all()
     
-   
-    if total_trans == 1:
-        statust = Transactions.objects.get(profile_user = request.user)
-        status = statust.status
-        if status == True:
-            final = True
-            statust.delete()
-    else:
-        final = False
-        print("Already deleted")
+    user_names_followers = []
+    for name in allfollowers:
+        current_user = User.objects.get(username = name.follower)
+        user_names_followers.append(current_user)
 
 
-    return render(request, "demobuy.html",{'userid':user_id, 'final':final})
-
-def transaction(request, id):
-    userprofile = Bank.objects.get(id=id)
-    bal = userprofile.account_bal
-    profile_usr = userprofile.profile_user
-    if request.method == 'POST':
-        value = request.POST['value']
-        transaction_cnt = Transactions.objects.create(profile_user = profile_usr, account_balt = bal, transfer_amt = value)
-        transaction_cnt.save()
-        trans = Transactions.objects.get(profile_user= request.user)
-        account_bal = trans.account_balt
-        transfer_amount = trans.transfer_amt
-        if transfer_amount>account_bal:
-            print("Insufficient Funds")
-            trans.delete()
-        else:
-            account_bal = account_bal-transfer_amount
-            userprofile.account_bal = account_bal
-            userprofile.save()
-            print(account_bal)
-            trans.status = True
-            trans.transfer_amt = 0
-            trans.save()
-    return redirect('demobuy')
-'''
+    return render(request, 'chatlist.html',{'allfollowers': allfollowers,'allProfiles':allProfiles,'user_names_followers':user_names_followers})

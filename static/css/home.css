@@ -253,5 +253,12 @@ top:500rem; */
     margin-left: 10%;
     
   }
+  .featured-services .title {
+    font-weight: 700;
+    margin-bottom: 0rem;
+    font-size: 1.5rem;
+    white-space: nowrap;
+    color: white;
+  }
 
 }

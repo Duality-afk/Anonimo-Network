@@ -6,8 +6,6 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
   <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
   <br><br><br><br><br>
@@ -18,7 +16,13 @@
     {% if profile.profile_user == post.author %}
 
      <div class="card-header bg-transparent">
-     <img src="{{profile.image.url}}" alt="" class="profile-img"><a href="/userprofile/{{post.sno}}/{{profile.id}}">{{post.author}}</a>
+     <img src="{{profile.image.url}}" alt="" class="profile-img">
+     {% if post.author in friendlist %}
+     <a href="/userprofile/{{profile.id}}" style="color: white;">{{post.author}}</a> 
+     {% else %}
+      <a href="/userprofile/{{profile.id}}">Anonymous</a> 
+     {% endif %}
+
      </div>
   
     {% endif %}
@@ -33,13 +37,13 @@
 
 <br><br>
  
-    <div class="row-icons">
+   <!-- <div class="row-icons">
       <div class="column">
       <form action="{% url 'like-post'%}" method='POST'>
         <input type="hidden" name="post_id" value="{{post.pk}}">
       {% csrf_token %}
     </div>
-</div>
+</div>-->
 
 <form action="/anonym/postComment/comment" method="post">
   {% csrf_token %}
@@ -59,7 +63,26 @@
     {% endfor %}
   </div>
    <div class="col-md-11" id="reply-main"> 
-        <b> {{comment.user.username}} </b><span class="badge badge-secondary ">at {{comment.timestamp}} </span>
+    {% if comment.user.username in friendlist %}
+    {% for post in allPosts %}
+    {% for profile in allProfiles %}
+      {% if post.author == comment.user and profile.profile_user == comment.user%}
+        <a href="/userprofile/{{profile.id}}">{{comment.user.username}}(#{{post.slug}})</a> 
+      {% endif %}
+    {% endfor %}
+    {% endfor %}
+    {% else %}
+      <!--IF USER IS NOT IN FRIEND LIST-->
+    {% for post in allPosts %}
+    {% for profile in allProfiles %}
+      {% if post.author == comment.user and profile.profile_user == comment.user%}
+        <a href="/userprofile/{{profile.id}}">Anonymous(#{{post.slug}})</a> 
+      {% endif %}
+    {% endfor %}
+    {% endfor %}
+    <!--END OF THE ELSE PART OF THE IF STATEMENT-->
+    {% endif %}
+        <span class="badge badge-secondary ">at {{comment.timestamp}} </span>
         <div id="reply-comment">   {{comment.comment}} </div>
 
         <div class="reply mx-0">
@@ -93,8 +116,15 @@
             {% endfor %}
             </div>
             <div class="col-md-11" id="reply-main">
-              <div class="col-md-11"  >
-                <b>{{reply.user.username}}</b> <span class="badge badge-secondary ">at {{reply.timestamp}}</span>
+              <div class="col-md-11">
+               {% for post in allPosts %}
+                {% for profile in allProfiles %}
+                  {% if post.author == reply.user and profile.profile_user == reply.user%}
+                    <a href="/userprofile/{{profile.id}}">Anonymous(#{{post.slug}}) <span class="badge badge-secondary">at {{reply.timestamp}}</span></a> 
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+           
                 <div id="reply-comment">{{reply.comment}}</div>
               </div>
 

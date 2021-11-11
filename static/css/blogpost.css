@@ -6,11 +6,12 @@ body{
     font-family: 'Montserrat';font-size: 2.2rem ;
     background-color: black !important;
   }
+  
+
   .card{
     min-height: 10rem;
     font-size:1.2rem;
     width: 50%;
-
     
   }
   .border-primary{
@@ -30,6 +31,8 @@ body{
   object-position: center right;
 }
  
+a:link { text-decoration: none; color: white; font-size: 1.5rem; font-weight: 500; }
+
 input[type=text], comment {
   width: 70%;
   margin-left: 2rem;
@@ -62,7 +65,7 @@ input[type=submit], submit {
 #reply-button{
   background-image: linear-gradient(to left,#264ed1,#2143b6);
   border: none;
-  width:15%;
+  width:20%;
   height:2.5rem;
   border-radius:1rem;
 }
@@ -93,6 +96,7 @@ b{
   font-size: 1.5rem;
 }
   
+
 
   @media(max-width:998px){
     html{

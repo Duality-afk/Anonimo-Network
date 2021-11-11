@@ -5,10 +5,11 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/login.css' %}">
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
 <div class="login-page">
   <div class="form">
     <img src="{% static '/img/Anonimo_Logo.png' %}" alt="Anonimo Logo" width="280" height="auto"></img>
-    <form class="login-form" method= "POST">
+      <form class="login-form" method= "POST">
       {% csrf_token %}
       <input type="text" placeholder="username" name="username"/>
       <input type="password" placeholder="password" name="password"/>
