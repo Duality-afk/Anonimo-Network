@@ -24,7 +24,11 @@
     {% if follow_button_value == 'follow' %}
     <input type="hidden" name="value" value="follow" readonly>
     {% if user.is_authenticated %}
-    <center><button  id = "btnedit" type="submit" class="btn btn-primary" onclick ="window.location.href=''"><i class="fas fa-user-edit"></i> Send Request</button>
+  {% if flagrequest == False %}
+    <center><button  id = "btnedit" type="button" class="btn btn-primary" onclick ="window.location.href=''"><i class="fas fa-user-edit"></i> Send Request</button>
+    {% else %}
+      <center><button  id = "btnedit" type="submit" class="btn btn-primary" onclick ="window.location.href=''"><i class="fas fa-user-edit"></i> Send Request</button>
+    {% endif %}
      <a href="/chat/{{current_user_pro_id}}" blank="_target"><button id = "btnedit" class="btn btn-primary" style="margin-left: 0.5rem;"><label>Chat</label></a></center>
     {% else %}
      
