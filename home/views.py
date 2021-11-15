@@ -215,6 +215,14 @@ def userProfile(request,id):
     for follower in allfollowers:
         Friend = User.objects.get(username = follower.follower)
         friendlist.append(Friend)
+     
+    flagrequest=True
+
+    allRequests = len(FriendRequest.objects.filter(from_user=request.user,to_user=current_user_pro))
+    print(allRequests)
+    if allRequests>=1:
+        flagrequest = False
+        
     context = {
         'current_user': current_user,
         'current_user_posts':current_user_posts,
@@ -231,6 +239,7 @@ def userProfile(request,id):
         'flag':flag,
         'friendlist':friendlist,
         'user_key':user_key,
+        'flagrequest':flagrequest,
             
             
         }
